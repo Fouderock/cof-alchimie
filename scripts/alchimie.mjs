@@ -1,5 +1,5 @@
 // Couche Foundry VTT (v13) : formulaire de préparation, jet et message de chat.
-import { ALL_ESSENCES, BASES, METHODS, preparer, resoudre, catastrophe } from "./logic.mjs";
+import { ALL_ESSENCES, ESSENCES, BASES, METHODS, preparer, resoudre, catastrophe } from "./logic.mjs";
 
 const MODULE_ID = "cof-alchimie";
 
@@ -8,18 +8,21 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
 const options = (items, selected = "") =>
   items.map((v) => `<option value="${esc(v)}" ${v === selected ? "selected" : ""}>${esc(v)}</option>`).join("");
 
-function essenceSelects(prefix) {
-  return ["1", "2", "3", "4", "5"]
-    .map((i) => `<div class="form-group"><label>${prefix} — essence ${i}</label>
-      <select name="${prefix}_${i}"><option value="">—</option>${options(ALL_ESSENCES)}</select></div>`)
+function essenceChecks(prefix) {
+  return Object.entries(ESSENCES)
+    .map(([famille, liste]) => `<fieldset style="border:1px solid #888;margin:4px 0;padding:4px">
+      <legend>${esc(famille)}</legend>
+      ${liste.map((e) => `<label style="display:inline-block;width:48%;"><input type="checkbox" name="${prefix}" value="${esc(e)}"> ${esc(e)}</label>`).join("")}
+    </fieldset>`)
     .join("");
 }
 
 function formContent() {
   return `
+  <div style="max-height:65vh;overflow-y:auto;padding-right:8px;">
   <form class="cof-alchimie">
-    <h3>Ingrédient 1 (1 à 5 essences)</h3>${essenceSelects("ing1")}
-    <h3>Ingrédient 2 (1 à 5 essences)</h3>${essenceSelects("ing2")}
+    <h3>Ingrédient 1 (cocher 1 à 5 essences)</h3>${essenceChecks("ing1")}
+    <h3>Ingrédient 2 (cocher 1 à 5 essences)</h3>${essenceChecks("ing2")}
     <div class="form-group"><label>Base</label>
       <select name="base">${options(Object.keys(BASES).map((k) => k), "liquide")}</select></div>
     <div class="form-group"><label>Méthode</label>
@@ -37,13 +40,14 @@ function formContent() {
     <div class="form-group"><label>Modificateur d'INT</label><input type="number" name="int" value="0"></div>
     <div class="form-group"><label>Bonus d'Artisanat</label><input type="number" name="art" value="0"></div>
     <div class="form-group"><label><input type="checkbox" name="known"> Recette connue (−3 à la DIF)</label></div>
-  </form>`;
+  </form>
+  </div>`;
 }
 
 function readForm(form) {
   const data = new FormData(form);
   const get = (k) => (data.get(k) ?? "").toString();
-  const ing = (p) => ["1", "2", "3", "4", "5"].map((i) => get(`${p}_${i}`)).filter(Boolean);
+  const ing = (p) => data.getAll(p).map(String).filter(Boolean);
   const targets = [get("target1"), get("target2")].filter(Boolean);
   return {
     ingredients: [ing("ing1"), ing("ing2")],
