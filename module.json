@@ -1,0 +1,26 @@
+{
+  "id": "cof-alchimie",
+  "title": "COF - Alchimie",
+  "description": "Système d'alchimie pour Chroniques Oubliées Fantasy : essences, bases, méthodes, jets et table des catastrophes.",
+  "version": "0.1.0",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13"
+  },
+  "relationships": {
+    "systems": [
+      {
+        "id": "cof",
+        "type": "system"
+      }
+    ]
+  },
+  "esmodules": [
+    "scripts/alchimie.mjs"
+  ],
+  "authors": [
+    {
+      "name": "Fabien"
+    }
+  ]
+}
